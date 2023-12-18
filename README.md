@@ -4,8 +4,8 @@ CODEXİST KİTAPCIM (CASE STUDY)
 
 ## Özellikler
 
-> **Özellik 1:** Kitapların dinamik bir şekilde listelendiği.
-> **Özellik 2:** Kitaplar arasında arama yapılabildiği.
+1. > **Özellik 1:** Kitapların dinamik bir şekilde listelendiği.
+2. > **Özellik 2:** Kitaplar arasında arama yapılabildiği.
 > **Özellik 3:** Sepete ekleme işleminin yapılabildiği.
 > **Özellik 4:** Sepette toplam fiyat ve eklenen ürün adetinde artış veya azalma yapılabildiği.
 > **Özellik 5:** Sepete eklenen ürünün sepetten çıkartılabildiği.
