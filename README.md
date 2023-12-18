@@ -1,16 +1,17 @@
-# cenk-kara-codeexist
-Proje İsmi ve Açıklaması:
+# Proje Adı
+
 CODEXİST KİTAPCIM (CASE STUDY)
 
-Kullanım ve Açıklamalar: 
-Kitapların dinamik bir şekilde listelendiği
-Kitaplar arasında arama yapılabildiği
-Sepete ekleme işleminin yapılabildiği
-Sepette toplam fiyat ve eklenen ürün adetinde artış veya azalma yapılabildiği
-Sepete eklenen ürünün sepetten çıkartılabildiği
-Sepette ki "Sepeti Onayla" butonu üzerinden kullanıcıları üyelik oluşturma modali üzerinden işlemlerin tamamlanabildiği
-Mobil cihaz uyumlu
-SEO kuralları göz önünde bulundurularak yaptığım bir projedir.
+## Özellikler
+
+- **Özellik 1:** Kitapların dinamik bir şekilde listelendiği.
+- **Özellik 2:** Kitaplar arasında arama yapılabildiği.
+- **Özellik 3:** Sepete ekleme işleminin yapılabildiği.
+- **Özellik 4:** Sepette toplam fiyat ve eklenen ürün adetinde artış veya azalma yapılabildiği.
+- **Özellik 5:** Sepete eklenen ürünün sepetten çıkartılabildiği.
+- **Özellik 6:** Sepette ki "Sepeti Onayla" butonu üzerinden kullanıcıları üyelik oluşturma modali üzerinden işlemlerin tamamlanabildiği.
+- **Özellik 7:** Mobil cihaz uyumlu.
+- **Özellik 8:** SEO kurallarına uyumlu yaptığım bir projedir.
 
 ## Project setup
 npm install
