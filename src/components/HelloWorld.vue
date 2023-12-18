@@ -1,53 +1,85 @@
 <template>
   <div class="hello">
     <div class="bookstore-banner-section">
-    <div class="wrapper">
-      <div class="flex-area">
-        <div class="text-block">
-          <h1>CODEXIST Kitapcım</h1>
-          <p>Kitaplarla dolu dünyamızda, her sayfa bir serüven. Keşfetmeye hazır mısınız?</p>
+      <div class="wrapper">
+        <div class="flex-area">
+          <div class="text-block">
+            <h1>CODEXIST Kitapcım</h1>
+            <p>Kitaplarla dolu dünyamızda, her sayfa bir serüven. Keşfetmeye hazır mısınız?</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="main-container">
-    <div class="search-bar">
-      <div class="search-wrapper">
-        <input v-model="searchQuery" type="text" placeholder="Kitap Ara..." />
-        <label>Kitap Ara:</label>
+    <div class="main-container">
+      <div class="search-bar">
+        <div class="search-wrapper">
+          <input v-model="searchQuery" type="text" placeholder="Kitap Ara..." />
+          <label>Kitap Ara:</label>
+        </div>
       </div>
-    </div>
-    <div class="books">
-      <div v-for="book in filteredBooks" :key="book.isbn13" class="book">
-        <img :src="book.image" :alt="book.title">
-        <h3>{{ book.title }}</h3>
-        <p>{{ book.subtitle }}</p>
-        <p>Fiyat: <span>{{ book.price }}</span>
-        </p>
-        <button class="add-btn" @click="addToCart(book)">Sepete Ekle</button>
+      <div class="books">
+        <div v-for="book in filteredBooks" :key="book.isbn13" class="book">
+          <img :src="book.image" :alt="book.title">
+          <h3>{{ book.title }}</h3>
+          <p>{{ book.subtitle }}</p>
+          <p>Fiyat: <span>{{ book.price }}</span></p>
+          <button class="add-btn" @click="addToCart(book)">Sepete Ekle</button>
+        </div>
       </div>
-    </div>
-    <div class="cart">
-      <div class="headling">
-              <h2>Sepetim</h2>
-      <i class="fa fa-cart-arrow-down s-basket" aria-hidden="true"></i>
+      <div class="cart">
+        <div class="headling">
+          <h2>Sepetim</h2>
+          <i class="fa fa-cart-arrow-down s-basket" aria-hidden="true"></i>
+        </div>
+        <ul>
+          <li v-for="item in cart" :key="item.isbn13">
+            <div class="basket-info"> 
+              <img :src="item.image" :alt="item.title">
+              <p>{{ item.title }} - ${{ item.price }} x {{ item.quantity }}</p>
+            </div>
+            <div class="basket-buttons">
+              <span @click="addOneFromCart(item)"><i class="fa fa-plus-circle s-plus" aria-hidden="true"></i></span>
+              <span @click="removeOneFromCart(item)"><i class="fa fa-minus-circle s-minus" aria-hidden="true"></i></span>
+              <span @click="removeFromCart(item.isbn13)"><i class="fa fa-trash s-trash" aria-hidden="true"></i></span>
+            </div>
+          </li>
+        </ul>
+        <p class="total-price">Toplam Fiyat: ${{ getTotalPrice().toFixed(2) }}</p>
+        <div class="flex-modal-area">
+        <button class="modal-btn" @click="showModal">Sepeti Onayla</button>
+        <div v-if="formSubmittedSuccessfully" class="success">
+          <div>Üyeliğiniz ve Siparişiniz Başarılı bir şekilde oluşturulmuştur.</div>
+        </div>
+        <div v-if="formSubmissionFailed" class="error">
+          <div>Lütfen tüm alanları doldurun.</div>
+        </div>
+        <div v-if="isModalVisible" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <span class="close" @click="closeModal">&times;</span>
+            </div>
+            <div class="modal-title-info">
+              <h1>Codexist Hesabınız Yok Mu?</h1>
+              <p>Satın alma işlemine devam edebilmeniz için lütfen üyelik oluşturun.</p>
+            </div>
+            <div class="modal-info">
+              <form @submit.prevent="submitForm">
+                <label for="firstName">İsim:</label>
+                <input type="text" id="firstName" v-model="formData.firstName" @input="validateInput" required />
+                <label for="lastName">Soyisim:</label>
+                <input type="text" id="lastName" v-model="formData.lastName" @input="validateInput" required />
+                <label for="email">E-posta:</label>
+                <input type="email" id="email" v-model="formData.email" required />
+                <label for="password">Şifre:</label>
+                <input type="password" id="password" v-model="formData.password" required />
+                <button type="submit">Üye Ol</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        </div>
       </div>
-      <ul>
-        <li v-for="item in cart" :key="item.isbn13">
-		<div class="basket-info"> 
-		<img :src="item.image" :alt="item.title">
-          <p>{{ item.title }} - ${{ item.price }} x {{ item.quantity }}</p>
-		</div>
-    <div class="basket-buttons">
-          <span @click="addOneFromCart(item)"><i class="fa fa-plus-circle s-plus" aria-hidden="true"></i></span>
-          <span @click="removeOneFromCart(item)"><i class="fa fa-minus-circle s-minus" aria-hidden="true"></i></span>
-          <span @click="removeFromCart(item.isbn13)"><i class="fa fa-trash s-trash" aria-hidden="true"></i></span>
-    </div>
-        </li>
-      </ul>
-      <p class="total-price">Toplam Fiyat: ${{ getTotalPrice().toFixed(2) }}</p>
-    </div>
-  </div>
+     </div>
   </div>
 </template>
 
@@ -57,15 +89,26 @@ export default {
   props: {
     msg: String
   },
-  data: function() {
+  data() {
   return {
     books: [],
     cart: [],
-    searchQuery: ""
+    searchQuery: "",
+    isModalVisible: false,
+    formData: {
+      firstName: "",
+      lastName: "",  
+      email: "",
+      password: ""
+    },
+    formSubmittedSuccessfully: false,
+    formSubmissionFailed: false
   };
 },
+
   mounted() {
     this.fetchBooks();
+    
   },
   computed: {
     filteredBooks() {
@@ -102,7 +145,7 @@ export default {
         this.cart.push({
           isbn13: book.isbn13,
           title: book.title,
-          price: Math.random() * 100,
+           price: parseFloat(book.price.replace(/[^\d.]/g, "")),
           image: book.image,
           quantity: 1
         });
@@ -135,6 +178,47 @@ export default {
         (total, item) => total + item.price * item.quantity,
         0
       );
+    },
+	showModal() {
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
+    submitForm() {
+      if (
+        this.formData.firstName &&
+        this.formData.lastName &&
+        this.formData.email &&
+        this.formData.password
+      ) {
+        this.formSubmittedSuccessfully = true;
+        this.formSubmissionFailed = false;
+        this.hideMessagesAfterDelay();
+        this.isModalVisible = false;
+      } else {
+        this.formSubmissionFailed = true;
+        this.formSubmittedSuccessfully = false;
+        this.hideMessagesAfterDelay();
+      }
+    },
+    hideMessagesAfterDelay() {
+      // Belirtilen süre (3 saniye) sonra başarılı ve başarısız mesajları gizle
+      setTimeout(() => {
+        this.formSubmittedSuccessfully = false;
+        this.formSubmissionFailed = false;
+      }, 3000);
+    },
+    validateInput() {
+      // Sadece harfleri kabul eden input değerini kontrol et
+      this.formData.firstName = this.formData.firstName.replace(
+        /[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g,
+        ""
+      );
+      this.formData.lastName = this.formData.lastName.replace(
+        /[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g,
+        ""
+      );
     }
   }
 }
@@ -144,9 +228,7 @@ export default {
 <style scoped>
 body {
   font-family: Arial, sans-serif;
-  margin-top: 0px !important;
-  margin-right: 0px !important;
-  margin-left: 0px !important;
+  margin: 0 !important;
   padding: 0;
   background-color: #f6f6f6;
 }
@@ -205,7 +287,7 @@ p{
       position: absolute;
       font-size: 12px;
       color: rgba(0,0,0,.50);
-      /* top: 8px; */
+      top: 8px;
       left: 12px;
       z-index: -1;
       transition: .15s all ease-in-out;
@@ -320,7 +402,7 @@ p{
   border: 1px solid #ddd;
   border-radius: 4px;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -337,8 +419,10 @@ p{
 }
 
 .basket-buttons{
-    display: flex;
+display: flex;
+    width: 30%;
     gap: 15px;
+    align-items: center;
   .s-plus{
     color: green;
     font-size:20px;
@@ -356,6 +440,10 @@ p{
   }
 }
 
+flex-modal-area{
+  widht: 100%
+}
+
 .cart .headling{
   display: flex;
   justify-content: center;
@@ -367,29 +455,136 @@ p{
       }
 }
 
-.modal-vue .overlay {
+/* Modal */
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: fixed;
-  z-index: 9998;
-  top: 0;
+  z-index: 1;
   left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, .5);
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
-.modal-vue .modal {
-  position: relative;
-  width: 300px;
-  z-index: 9999;
-  margin: 0 auto;
-  padding: 20px 30px;
+.modal-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  max-width: 600px;
+  /* veya istediğiniz genişlik */
+  width: 80%;
+  text-align: center;
+  /* İçerik ortalanacak şekilde ayarlandı */
+}
+  
+  .modal-btn{
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px;
+  border:none;
+  border-radius: 4px;
+  cursor: pointer;
+  }
+
+.modal-header {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.modal-title-info {
+  display: block;
+  justify-content: center;
+} 
+  
+  .modal-title-info h1{
+font-size: 20px
+} 
+  
+    .modal-title-info p{
+font-size:12px
+} 
+  
+.modal-info {
+  display: flex;
+  justify-content: center;
+}
+
+.close {
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+form {
+  padding: 20px;
+  max-width: 300px;
+  width: 100%;
+}
+
+form label {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+form input {
+  width: 100%;
+  border-radius: 15px;
+  border: 1px solid #dee3e1;
+  padding: 14px;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+  
+  form input:focus {
+border-color:green
+}
+
+  
+  form button {
   background-color: #fff;
+  color: #000;
+  padding: 10px;
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+    form button:hover {
+  background-color: #4caf50;
+  color: #fff;
+}
+.success,
+.error {
+  text-align: center;
+  margin-top: 20px;
+  transition: opacity 0.5s ease-in-out;
 }
 
-.modal-vue .close{
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
+}
+
+.success.hidden,
+.error.hidden {
+  opacity: 0;
 }
 
 /* Mobil Uyum */
@@ -433,5 +628,6 @@ p{
   }
 }
 }
+
 
 </style>
